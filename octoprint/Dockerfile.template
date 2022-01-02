@@ -82,7 +82,11 @@ RUN usermod -aG video root
 RUN cd /etc/ssl && openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 --nodes -subj "/C=GB/ST=Merseyside/L=Liverpool/O=Dynamic Devices/OU=Org/CN=localhost" \
  && cat cert.pem key.pem > ssl-certs.pem
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
-COPY ./udevd.sh /app/udevd.sh
+
 COPY ./haproxy.cfg /etc/haproxy/haproxy.cfg
 
-CMD ["/app/udevd.sh"]
+WORKDIR /usr/src/octobalena
+COPY udevd.sh udevd.sh
+# COPY start.sh start.sh
+
+CMD ["/usr/src/octobalena/udevd.sh"]
