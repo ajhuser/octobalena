@@ -27,7 +27,7 @@ RUN apt-get update && install_packages libavahi-compat-libdnssd1 \
 RUN pip3 install --upgrade pip
 
 # Install OctoPrint
-RUN pip3 install OctoPrint==1.7.2
+RUN pip3 install --no-cache-dir OctoPrint
 
 # Install PyBonjour and Zeroconf
 RUN pip install --no-cache-dir https://github.com/DynamicDevices/pybonjour-python3/archive/master.zip zeroconf
@@ -36,27 +36,32 @@ RUN pip install --no-cache-dir https://github.com/DynamicDevices/pybonjour-pytho
 RUN pip3 install supervisor
 
 # Install Python dependencies for MattaCloud
-RUN pip3 install aiohttp aiortc numpy opencv-python
+#RUN pip3 install aiohttp aiortc numpy opencv-python
 
 # Install paho mqtt for power control
-RUN pip3 install paho-mqtt
+#RUN pip3 install paho-mqtt
 
 # Build mjpg-streamer
 #RUN ln -s /usr/include/linux/videodev2.h /usr/include/linux/videodev.h
+RUN ln -s /usr/include /opt/vc
+RUN ln -s /usr/lib/aarch64-linux-gnu /opt/vc/lib
 RUN git clone https://github.com/jacksonliam/mjpg-streamer.git && cd mjpg-streamer/mjpg-streamer-experimental \
  && sed -i 's|#include <linux/stat.h>|//#include <linux/stat.h>|g' utils.c \
  && make && make install
- 
+
+#
+
+
 # OctoDash requirements, it is stated these plugins are mandatory on the project wiki:
 # https://github.com/UnchartedBull/OctoDash/wiki/Installation#automatic-installation
-#RUN pip3 install --no-cache-dir \
-    "https://github.com/OllisGit/OctoPrint-DisplayLayerProgress/releases/latest/download/master.zip" \
-    "https://github.com/OllisGit/OctoPrint-FilamentManager/releases/latest/download/master.zip" \
-    "https://github.com/jneilliii/OctoPrint-BLTouch/archive/master.zip" \
-    "https://github.com/FormerLurker/Octolapse/archive/master.zip" \
-    "https://github.com/johnnyruz/OctoPrint-OctoVox/archive/master.zip" \
-    "https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/archive/master.zip" \
-    "https://github.com/OctoPrint/OctoPrint-FirmwareUpdater/archive/master.zip"
+RUN pip3 install --no-cache-dir \
+    https://github.com/OllisGit/OctoPrint-DisplayLayerProgress/releases/latest/download/master.zip \
+    https://github.com/OllisGit/OctoPrint-FilamentManager/releases/latest/download/master.zip \
+    https://github.com/jneilliii/OctoPrint-BLTouch/archive/master.zip \
+    https://github.com/FormerLurker/Octolapse/archive/master.zip \
+    https://github.com/johnnyruz/OctoPrint-OctoVox/archive/master.zip \
+    https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/archive/master.zip \
+    https://github.com/OctoPrint/OctoPrint-FirmwareUpdater/archive/master.zip
 
 # Adds support for obtaining OCTOPRINT_APIKEY and setting the octodash service variable automatically
 # https://github.com/MatthewCroughan/octobalena/pull/10
@@ -70,7 +75,7 @@ COPY ./config.yaml /data/config.yaml
 #COPY ./mqtt_espurna_control.py /usr/src/octobalena/mqtt_espurna_control.py
 
 # Add root user to video group to make vcgencmd work
-RUN usermod -aG video root
+#RUN usermod -aG video root
 
 # Generate SSL cert
 RUN cd /etc/ssl && openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 --nodes -subj "/C=GB/ST=Merseyside/L=Liverpool/O=Dynamic Devices/OU=Org/CN=localhost" \
